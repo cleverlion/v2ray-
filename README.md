@@ -50,11 +50,11 @@ nginx必须为443端口，保证443端口不被占用
    配置Nginx
    vim /etc/nginx/nginx.conf
    配置文件内容：
+   
     user nginx;
     worker_processes auto;
     error_log /dev/null;
     pid /run/nginx.pid;
-
     include /usr/share/nginx/modules/*.conf;
 
     events {
@@ -89,7 +89,9 @@ nginx必须为443端口，保证443端口不被占用
         }
     }
     
-    启动Nginx服务
+    
+    
+   启动Nginx服务
       systemctl enable nginx
       systemctl start nginx
       查看运行状态
@@ -111,21 +113,22 @@ nginx必须为443端口，保证443端口不被占用
     acme.sh --installcert -d example.cc -d www.example.cc --key-file /etc/v2ray/v2ray.key --fullchain-file /etc/v2ray/v2ray.crt --ecc --reloadcmd  "service nginx force-reload && systemctl restart v2ray"
     这行命令除了将证书放到指定目录下外，还会自动创建crontab定时任务，后面引号里的命令是定时任务更新证书后执行的命令
     配置Nginx支持Https访问
+    
     user nginx;
-worker_processes auto;
-error_log /dev/null;
-pid /run/nginx.pid;
+    worker_processes auto;
+    error_log /dev/null;
+    pid /run/nginx.pid;
 
-include /usr/share/nginx/modules/*.conf;
+    include /usr/share/nginx/modules/*.conf;
 
-events {
-    worker_connections 1024;
-}
+    events {
+        worker_connections 1024;
+    }
 
-http {
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
+    http {
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
 
     access_log  off;
 
@@ -187,7 +190,8 @@ http {
             location = /50x.html {
         }
     }
-}
+    }
+    
   ——————此处进行HTTPS的强制跳转，页面会报错：该网站进行了过多的重定向
   猜测是强制跳转的原因，总之将强制跳转Https部分注释掉了
   
@@ -206,87 +210,88 @@ http {
   修改/etc/v2ray/config.json
   
   完整配置文件如下：
-  {
-    "log": {
-        "loglevel": "none",
-        "access": "/var/log/v2ray/access.log",
-        "error": "/var/log/v2ray/error.log"
-    },
-    "inbounds": [
-        {
-            "port": 10443,
-            "listen": "127.0.0.1",
-            "protocol": "vmess",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "27e0efcc-8e13-fef1-9e82-febebc469b2b",
-                        "alterId": 64
-                    }
-                ]
-            },
-            "streamSettings": {
-                "network": "ws",
-                "wsSettings": {
-                    "path": "/wss"
-                }
-            }
-        },
-        {
-            "tag": "tg-in",
-            "port": 8080,
-            "protocol": "mtproto",
-            "settings": {
-                "users": [
-                    {
-                        "secret": "80e2e037610bac1444ac02979364f666"
-                    }
-                ]
-            }
-        }
-    ],
-    "outbounds": [
-        {
-            "protocol": "freedom",
-            "settings": {}
-        },
-        {
-            "protocol": "blackhole",
-            "settings": {
-                "response": {
-                    "type": "none"
-                }
-            },
-            "tag": "blocked"
-        },
-        {
-            "tag": "tg-out",
-            "protocol": "mtproto",
-            "settings": {}
-        }
-    ],
-    "routing": {
-        "domainStrategy": "IPOnDemand",
-        "settings": {
-            "rules": [
-                {
-                    "type": "field",
-                    "ip": [
-                        "geoip:private"
-                    ],
-                    "outboundTag": "blocked"
-                },
-                {
-                    "type": "field",
-                    "inboundTag": [
-                        "tg-in"
-                    ],
-                    "outboundTag": "tg-out"
-                }
-            ]
-        }
-    }
-}
+  
+    {
+      "log": {
+          "loglevel": "none",
+          "access": "/var/log/v2ray/access.log",
+          "error": "/var/log/v2ray/error.log"
+      },
+      "inbounds": [
+          {
+              "port": 10443,
+              "listen": "127.0.0.1",
+              "protocol": "vmess",
+              "settings": {
+                  "clients": [
+                      {
+                          "id": "27e0efcc-8e13-fef1-9e82-febebc469b2b",
+                          "alterId": 64
+                      }
+                  ]
+              },
+              "streamSettings": {
+                  "network": "ws",
+                  "wsSettings": {
+                      "path": "/wss"
+                  }
+              }
+          },
+          {
+              "tag": "tg-in",
+              "port": 8080,
+              "protocol": "mtproto",
+              "settings": {
+                  "users": [
+                      {
+                          "secret": "80e2e037610bac1444ac02979364f666"
+                      }
+                  ]
+              }
+          }
+      ],
+      "outbounds": [
+          {
+              "protocol": "freedom",
+              "settings": {}
+          },
+          {
+              "protocol": "blackhole",
+              "settings": {
+                  "response": {
+                      "type": "none"
+                  }
+              },
+              "tag": "blocked"
+          },
+          {
+              "tag": "tg-out",
+              "protocol": "mtproto",
+              "settings": {}
+          }
+      ],
+      "routing": {
+          "domainStrategy": "IPOnDemand",
+          "settings": {
+              "rules": [
+                  {
+                      "type": "field",
+                      "ip": [
+                          "geoip:private"
+                      ],
+                      "outboundTag": "blocked"
+                  },
+                  {
+                      "type": "field",
+                      "inboundTag": [
+                          "tg-in"
+                      ],
+                      "outboundTag": "tg-out"
+                  }
+              ]
+          }
+      }
+  }
   ——————outbounds中将
         {
             "protocol": "freedom",
@@ -294,14 +299,15 @@ http {
         }
         以外的东西全部删掉才可正常进行访问，搜了很久才查到，至于原因，尚未可知
         
-        开启开机启动并启动
-        
-        systemctl enable v2ray
-        systemctl start v2ray
-        验证是否运行
-        systemctl status v2ray
+  开启开机启动并启动
+
+  systemctl enable v2ray
+  systemctl start v2ray
+  验证是否运行
+  systemctl status v2ray
   6.客户端配置
     PC用的支持国内外分流
+    
     {
     "inbounds": [
         {
@@ -461,7 +467,7 @@ http {
             ]
         }
     }
-}
+    }
 
 // chorme浏览器
   chorme配置：
