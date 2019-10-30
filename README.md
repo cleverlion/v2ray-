@@ -6,10 +6,11 @@ nginx必须为443端口，保证443端口不被占用
 2.vps配置：
   Linux系统选择CentOS7
   更新系统：
-  yum remove -y epel-release
-  yum install -y epel-release
-  yum update -y
-  yum install -y vim git zip unzip
+  
+    yum remove -y epel-release
+    yum install -y epel-release
+    yum update -y
+    yum install -y vim git zip unzip
   
   
 3.域名申请：
@@ -29,26 +30,31 @@ nginx必须为443端口，保证443端口不被占用
   完成后访问自己的域名进行测试
   
   vps端新建目录
-  mkdir -p /www/root
+  
+    mkdir -p /www/root
   
   增加index.html
-  vim /www/root/index.html
+  
+    vim /www/root/index.html
   
   将腾讯404页面添加其中
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <title>404</title>
-    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8" homePageUrl="https://www.example.cc/" homePageName="回到我的主页"></script>
-  </head>
-  </html>
+  
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>404</title>
+      <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+      <script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8" homePageUrl="https://www.example.cc/" homePageName="回到我的主页"></script>
+    </head>
+    </html>
   
  4.安装配置Nginx
    安装Nginx
-   yum install -y nginx
+   
+    yum install -y nginx
    配置Nginx
-   vim /etc/nginx/nginx.conf
+   
+    vim /etc/nginx/nginx.conf
    配置文件内容：
    
     user nginx;
@@ -92,27 +98,38 @@ nginx必须为443端口，保证443端口不被占用
     
     
    启动Nginx服务
+   
       systemctl enable nginx
       systemctl start nginx
       查看运行状态
       systemctl status nginx
   
   5.安装V2Ray
+  
     bash <(curl -L -s https://install.direct/go.sh)
-    安装完成后自动启动，这里先把它给停了
-    systemctl stop v2ray
-    选用acme.sh申请证书
+   安装完成后自动启动，这里先把它给停了
+  
+     systemctl stop v2ray
+   选用acme.sh申请证书
     安装acme.sh
+    
     curl  https://get.acme.sh | sh
-    安装完成后执行下
+    
+   安装完成后执行下
+   
     source /root/.bashrc
-    申请证书
+    
+   申请证书
+   
     acme.sh --issue -d example.cc -d www.example.cc --webroot /www/root/ -k ec-256
-    将证书安装到目录
-    这里将证书放到/etx/v2ray目录下
+   
+   将证书安装到目录
+   这里将证书放到/etx/v2ray目录下
+   
     acme.sh --installcert -d example.cc -d www.example.cc --key-file /etc/v2ray/v2ray.key --fullchain-file /etc/v2ray/v2ray.crt --ecc --reloadcmd  "service nginx force-reload && systemctl restart v2ray"
-    这行命令除了将证书放到指定目录下外，还会自动创建crontab定时任务，后面引号里的命令是定时任务更新证书后执行的命令
-    配置Nginx支持Https访问
+    
+   这行命令除了将证书放到指定目录下外，还会自动创建crontab定时任务，后面引号里的命令是定时任务更新证书后执行的命令
+   配置Nginx支持Https访问
     
     user nginx;
     worker_processes auto;
@@ -196,7 +213,8 @@ nginx必须为443端口，保证443端口不被占用
   猜测是强制跳转的原因，总之将强制跳转Https部分注释掉了
   
   配置完之后重新启动Nginx
-  systemctl restart nginx
+  
+    systemctl restart nginx
   
   访问你的二级域名，如果正确显示公益404则已经配置正确。
   
@@ -205,7 +223,8 @@ nginx必须为443端口，保证443端口不被占用
   为V2Ray生成一个UUID：https://www.uuidgenerator.net/ 自动生成
   为mtproto生成一个密钥
   使用linux系统创建伪随机数作为密钥
-  $ head -c 16 /dev/urandom | xxd -ps
+  
+    head -c 16 /dev/urandom | xxd -ps
   
   修改/etc/v2ray/config.json
   
@@ -301,10 +320,11 @@ nginx必须为443端口，保证443端口不被占用
         
   开启开机启动并启动
 
-  systemctl enable v2ray
-  systemctl start v2ray
+    systemctl enable v2ray
+    systemctl start v2ray
   验证是否运行
-  systemctl status v2ray
+  
+    systemctl status v2ray
   6.客户端配置
     PC用的支持国内外分流
     
